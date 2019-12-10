@@ -22,14 +22,12 @@ class Node:
         return a
 
     def count_total(top):
-        if top.data == None:
-            return 0
-        a = 1
+        a = 0
         if top.left != None:
-            a = a + 1 + top.left.count_leafs()
+            a += top.left.count_total()
         if top.right != None:
-            a = a + 1 + top.right.count_leafs()
-        return a
+            a += top.right.count_total()
+        return a + top.data
 
 root = None           # puste drzewo
 # Ręczne budowanie większego drzewa.
