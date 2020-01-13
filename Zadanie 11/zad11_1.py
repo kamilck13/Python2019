@@ -4,13 +4,13 @@ import math
 
 def losowe_liczby(N):
     L = []
-    for i in range(0, int((random.random())*1000)):
+    for i in range(0, N):
         L.append(random.randint(0, N-1))
     return L
 
 def prawie_posortowana(N):
     L = []
-    for i in range(0, int((random.random())*1000)):
+    for i in range(0, N):
         a = i % N
         if a % 2 == 0:
             L.append(a+1)
