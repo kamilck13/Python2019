@@ -12,7 +12,7 @@ class Node:
         return str(self.data)
 
 class BST_Tree:
-    def __init__(self, top = None):     #top - głowa drzewa, czyli node głowa
+    def __init__(self, top = None):     #top - głowa drzewa kalsy node
         self.top = top
 
     def btree_print_indented(self, top = NOTHING, level = 0):     # funkcja rysująca drzewo
@@ -39,9 +39,7 @@ class BST_Tree:
         self.top = top
         return top
 
-    # brakuje metody usuwanie elementu
-
-    def btree_search(self,  data, top = NOTHING):   # zwraca węzeł lub None
+    def btree_search(self, data, top = NOTHING):   # zwraca węzeł lub None
         if top is NOTHING: top = self.top
         if top is None or top.data == data:
             return top
@@ -49,18 +47,55 @@ class BST_Tree:
         if node:
             return node
         else:
-            return self.btree_search(data, top.right)
+            return self.btree_search(data, top.right)  
+
+    def _btree_transplant (self, first, second):
+        if first.parent is None:
+            self.top = second
+            if self.top:
+                self.top.parent = None
+            return
+        elif first == first.parent.left:
+            first.parent.left = second
+        else:
+            first.parent.right = second
+        if second:
+            second.parent = first.parent
+        return
+
+    def _btree_find_min(self, top):
+        if top is None:
+            raise ValueError("emnty tree")
+        while top.left:
+            top = top.left
+        return top
+
+    def bst_delete(self, data):         #usuwa element
+        node = self.btree_search(data)
+        if self.top is None or node is None:
+            return
+        if node.left is None:
+            self._btree_transplant(node, node.right)
+            return
+        elif node.right is None:
+            self._btree_transplant(node, node.left)
+            return
+        else:
+            y = self._btree_find_min(node.right)
+            if y.parent != node:
+                self._btree_transplant(y, y.right)
+                y.right = node.right
+            if y.right:
+                y.right.parent = y
+        self._btree_transplant(node, y)
+        y.left = node.left
+        y.left.parent = y
+        return
 
     # algorytm DSW -----------------------------------------------------
     def DSW(self):
-        print("Drzewo ----------------------------------")
-        self.btree_print_indented()
-        print("Kręgosłup -------------------------------")
         self._createSpine()
-        root.btree_print_indented()
-        self._createWeightedTree()
-        print("Zrównoważone drzewo ---------------------")
-        self.btree_print_indented()
+        self._createWeightedTree()        
 
     def _spine_height(self, top = NOTHING):
         if top is NOTHING: top = self.top
@@ -71,6 +106,8 @@ class BST_Tree:
     def _right_rotation(self, root):
         parent = root.parent
         right = root.right
+        if right.left != None:
+            right.left.parent = root
         if root.parent != None:
             root.parent.right = root.right
         root.right = right.left
@@ -135,5 +172,15 @@ root.bst_insert(Node(9))
 root.bst_insert(Node(6))
 root.bst_insert(Node(0))
 root.bst_insert(Node(10))
+#root.bst_insert(Node(7))
 
+print("Drzewo ----------------------------------")
+root.btree_print_indented()
 root.DSW()
+print("Zrównoważone ----------------------------------")
+root.btree_print_indented()
+
+
+root.bst_delete(6)
+print("po usunięciu:  -----------------")
+root.btree_print_indented()
