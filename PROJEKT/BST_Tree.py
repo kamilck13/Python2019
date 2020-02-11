@@ -1,4 +1,5 @@
 import math
+import unittest
 
 NOTHING = object()
 
@@ -11,7 +12,7 @@ class Node:
     def __str__(self):
         return str(self.data)
 
-class BST_Tree:
+class Btree:
     def __init__(self, top = None):     #top - głowa drzewa kalsy node
         self.top = top
 
@@ -22,17 +23,23 @@ class BST_Tree:
         self.btree_print_indented(top.right, level+1)
         print ("{}* {}".format('   '*level, top))
         self.btree_print_indented(top.left, level+1)
+    
+    def _btree_test_print_indented(self, top = NOTHING, level = 0):
+        if top is NOTHING: top = self.top
+        if top is None:
+            return ""
+        return str(top.data) + "x" + self._btree_test_print_indented(top.right, level+1) + "x" + self._btree_test_print_indented(top.left, level+1)
 
-    def bst_insert(self, node, top = NOTHING):   # wstawia element
+    def btree_insert(self, node, top = NOTHING):   # wstawia element
         if top is NOTHING: top = self.top
         if top is None:
             self.top = node
             return node
         if node.data < top.data:
-            top.left = self.bst_insert(node, top.left)
+            top.left = self.btree_insert(node, top.left)
             top.left.parent = top
         elif node.data > top.data:
-            top.right = self.bst_insert(node, top.right)
+            top.right = self.btree_insert(node, top.right)
             top.right.parent = top
         else:
             pass          # ignorujemy duplikaty
@@ -70,8 +77,7 @@ class BST_Tree:
             top = top.left
         return top
 
-    def bst_delete(self, data):         #usuwa element
-        node = self.btree_search(data)
+    def btree_delete(self, node):         #usuwa element
         if self.top is None or node is None:
             return
         if node.left is None:
@@ -93,7 +99,7 @@ class BST_Tree:
         return
 
     # algorytm DSW -----------------------------------------------------
-    def DSW(self):
+    def btree_DSW(self):
         self._createSpine()
         self._createWeightedTree()        
 
@@ -160,27 +166,45 @@ class BST_Tree:
                 tmp = tmp.right      
     
 
+class AllTests(unittest.TestCase):
+    def setUp(self):
+        self.root = Btree()         # puste drzewo        
+        self.root.btree_insert(Node(2))
+        self.root.btree_insert(Node(3))
+        self.root.btree_insert(Node(5))
+        self.root.btree_insert(Node(1))
+        self.root.btree_insert(Node(4))
+        self.root.btree_insert(Node(8))
+        self.root.btree_insert(Node(9))
+        self.root.btree_insert(Node(6))
+        self.root.btree_insert(Node(0))
+        self.root.btree_insert(Node(10))
+        self.root.btree_insert(Node(7))
+        #self.root.btree_print_indented()
 
-root = BST_Tree()         # puste drzewo        
-root.bst_insert(Node(2))
-root.bst_insert(Node(3))
-root.bst_insert(Node(5))
-root.bst_insert(Node(1))
-root.bst_insert(Node(4))
-root.bst_insert(Node(8))
-root.bst_insert(Node(9))
-root.bst_insert(Node(6))
-root.bst_insert(Node(0))
-root.bst_insert(Node(10))
-#root.bst_insert(Node(7))
+    def test1_solve1(self):
+        wynik = "2x3x5x8x9x10xxxx6x7xxxx4xxxx1xx0xx"
+        self.assertEqual(self.root._btree_test_print_indented(), wynik)
 
-print("Drzewo ----------------------------------")
-root.btree_print_indented()
-root.DSW()
-print("Zrównoważone ----------------------------------")
-root.btree_print_indented()
+    def test2_solve1(self):
+        self.root.btree_DSW()
+        wynik = "7x9x10xxx8xxx3x5x6xxx4xxx1x2xxx0xx"
+        self.assertEqual(self.root._btree_test_print_indented(), wynik)
 
+    def test3_solve1(self):
+        self.root.btree_delete(self.root.btree_search(7))
+        wynik = "2x3x5x8x9x10xxxx6xxx4xxxx1xx0xx"
+        self.assertEqual(self.root._btree_test_print_indented(), wynik)
 
-root.bst_delete(6)
-print("po usunięciu:  -----------------")
-root.btree_print_indented()
+    def test3_solve2(self):
+        self.root.btree_delete(self.root.btree_search(8))
+        wynik = "2x3x5x9x10xxx6x7xxxx4xxxx1xx0xx"
+        self.assertEqual(self.root._btree_test_print_indented(), wynik)
+
+    def test3_solve3(self):
+        self.root.btree_delete(self.root.btree_search(2))
+        wynik = "3x5x8x9x10xxxx6x7xxxx4xxx1xx0xx"
+        self.assertEqual(self.root._btree_test_print_indented(), wynik)
+
+if __name__ == '__main__':
+    unittest.main() 
